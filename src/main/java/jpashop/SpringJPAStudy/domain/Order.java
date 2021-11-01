@@ -47,4 +47,43 @@ public class Order {
         this.delivery = delivery;
         delivery.setOrder(this);
     }
+
+    // 비즈니스 로직 추가
+    // 주문 생성이 복잡하기 때문에 별도의 생성 메서드로 처리
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems){
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for(OrderItem orderItem: orderItems)
+            order.addOrderItem(orderItem);
+        order.setStatus(OrderStatus.ORDER);
+        order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
+
+    // 주문 취소
+    public void cancel() {
+        if(getDelivery().getStatus() == DeliveryStatus.COMP)
+            throw new IllegalStateException("이미 배송 완료된 상품은 취소가 불가능합니다");
+
+        setStatus(OrderStatus.CANCEL);
+
+        for(OrderItem orderItem : getOrderItems()){
+            orderItem.cancel();
+        }
+    }
+
+    // 가격  조회
+    public int getTotalPrice(){
+//        int total_price = 0;
+//        for(OrderItem orderItem : getOrderItems())
+//            total_price += orderItem.getTotalPrice();
+//        return total_price;
+        // 코드 작성 후, for 문 앞에서 Alt+Enter : Replace with Sum()
+        // inline 단축키는 Ctrl+Alt+N
+
+        return getOrderItems().stream()
+                .mapToInt(OrderItem::getTotalPrice)
+                .sum();
+    }
 }
