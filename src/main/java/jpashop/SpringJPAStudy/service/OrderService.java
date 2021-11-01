@@ -40,7 +40,7 @@ public class OrderService {
 
     // 주문 취소
     @Transactional(readOnly = false)
-    public void cancel(Long order_id) {
+    public void cancelOrder(Long order_id) {
         Order cancel_order = orderRepository.findOne(order_id);
         cancel_order.cancel();
     }
