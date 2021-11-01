@@ -1,6 +1,8 @@
 package jpashop.SpringJPAStudy.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
     @Id @GeneratedValue
     @Column(name = "order_id")
@@ -31,6 +34,9 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    // 다른 곳에서 의도치않은 생성자 호출 금지. createOrderItem 만을 사용하도록
+//    protected Order() {} : NoArgsConstructor 와 동일
 
     // 연관 관계 편의 메서드
     public void setMember(Member member){
