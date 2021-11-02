@@ -1,9 +1,6 @@
 package jpashop.SpringJPAStudy.service;
 
-import jpashop.SpringJPAStudy.domain.Delivery;
-import jpashop.SpringJPAStudy.domain.Member;
-import jpashop.SpringJPAStudy.domain.Order;
-import jpashop.SpringJPAStudy.domain.OrderItem;
+import jpashop.SpringJPAStudy.domain.*;
 import jpashop.SpringJPAStudy.domain.item.Item;
 import jpashop.SpringJPAStudy.repository.ItemRepository;
 import jpashop.SpringJPAStudy.repository.MemberRepository;
@@ -11,6 +8,8 @@ import jpashop.SpringJPAStudy.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,5 +44,13 @@ public class OrderService {
         cancel_order.cancel();
     }
 
-    // 검색
+    // JPQL 검색
+    public List<Order> findAllByString(OrderSearch orderSearch) {
+        return orderRepository.findAllByString(orderSearch);
+    }
+
+    // Criteria 검색
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
+        return orderRepository.findAllByCriteria(orderSearch);
+    }
 }
