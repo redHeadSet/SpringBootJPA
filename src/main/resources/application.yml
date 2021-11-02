@@ -13,6 +13,17 @@ spring:
         show_sql: true    # sql 문을 보여줌 : system.out
         format_sql: true  # 문장을 물음표 표시 말고 값을 보여줌
 
+  # 타임리프 매핑 설정
+  # prifix + Controller 반환 String 값 + suffix 값으로 렌더링할 View 찾음
+  thymeleaf:
+    prifix: classpath:/templates/
+    suffix: .html
+    # thymeleaf layout : https://www.thymeleaf.org/doc/articles/layouts.html
+
+# 추가적으로, 부트스트랩 다운로드
+# https://getbootstrap.com/
+# css, js 디렉토리를 resource/static 내 복사
+
 logging:
   level:
     org.hibernate.SQL: debug
