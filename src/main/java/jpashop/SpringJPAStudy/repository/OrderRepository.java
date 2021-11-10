@@ -29,7 +29,7 @@ public class OrderRepository {
 
     // JPQL 사용
     public List<Order> findAllByString(OrderSearch orderSearch) {
-        String jpql = "select o from orders o join o.member m";
+        String jpql = "select o from Order o join o.member m";
         Boolean isFirstCondition = true;
 
         // 주문 상태
