@@ -62,15 +62,22 @@ public class ItemController {
 
     @PostMapping("items/{itemId}/edit")
     public String updateItemForm(BookForm bookForm, BindingResult result) {
-        Book updateBook = new Book();
-        updateBook.setId(bookForm.getId());
-        updateBook.setName(bookForm.getName());
-        updateBook.setPrice(bookForm.getPrice());
-        updateBook.setStockQuantity(bookForm.getStockQuantity());
-        updateBook.setAuthor(bookForm.getAuthor());
-        updateBook.setIsbn(bookForm.getIsbn());
+        // merge 사용
+//        Book updateBook = new Book();
+//        updateBook.setId(bookForm.getId());
+//        updateBook.setName(bookForm.getName());
+//        updateBook.setPrice(bookForm.getPrice());
+//        updateBook.setStockQuantity(bookForm.getStockQuantity());
+//        updateBook.setAuthor(bookForm.getAuthor());
+//        updateBook.setIsbn(bookForm.getIsbn());
+//        itemService.saveItem(updateBook); // 해당 함수 안에서 merge 호출
 
-        itemService.saveItem(updateBook);
+        // 영속성 컨텍스트 수정 (변경 감지 사용) - author나 isbn은 일단 생략
+        itemService.update( bookForm.getId(),
+                            bookForm.getName(),
+                            bookForm.getPrice(),
+                            bookForm.getStockQuantity());
+
         return "redirect:/items";
     }
 }

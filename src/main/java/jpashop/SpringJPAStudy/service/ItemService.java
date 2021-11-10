@@ -26,4 +26,9 @@ public class ItemService {
     public List<Item> findAll(){
         return itemRepository.findAll();
     }
+
+    @Transactional(readOnly = false)
+    public Item update(Long id, String name, int price, int stockQuantity) {
+        return itemRepository.update(id, name, price, stockQuantity);
+    }
 }

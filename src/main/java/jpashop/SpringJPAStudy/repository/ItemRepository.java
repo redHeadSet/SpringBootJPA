@@ -19,6 +19,15 @@ public class ItemRepository {
             em.merge(item);     // UPDATE
     }
 
+    public Item update(Long id, String name, int price, int stockQuantity) {
+        Item item = findOne(id);
+
+        item.setName(name);
+        item.setPrice(price);
+        item.setStockQuantity(stockQuantity);
+        return item;
+    }
+
     public Item findOne(Long id){
         return em.find(Item.class, id);
     }
