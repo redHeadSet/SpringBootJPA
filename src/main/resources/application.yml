@@ -7,7 +7,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create # 자동 Table 생성 및 app 종료 시 제거
+#      ddl-auto: create # 자동 Table 생성 및 app 종료 시 제거
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: true    # sql 문을 보여줌 : system.out

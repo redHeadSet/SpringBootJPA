@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // @Controller
 // @ResponseBody // json, xml 등으로 통신할 때 사용하는 어노테이션
@@ -48,6 +51,22 @@ public class MemberApiController {
         return new UpdateMemberResponse(updateMember.getId(), updateMember.getName());
     }
 
+    // 회원 조회 - 엔티티 직접 전달
+    @GetMapping("/api/v1/members")
+    public List<Member> v1memberList(){
+        return memberService.findMembers();
+    }
+
+    @GetMapping("/api/v2/members")
+    public Result<SelectMemberDto> v2memberList(){
+        List<Member> findMembers = memberService.findMembers();
+        List<SelectMemberDto> collect = findMembers.stream()
+                .map(m -> new SelectMemberDto(m.getId(), m.getName()))
+                .collect(Collectors.toList());
+
+        return new Result(collect.size(), collect);
+    }
+
     @Data
     static class CreateMemberResponse {
         private Long id;
@@ -72,5 +91,19 @@ public class MemberApiController {
     static class UpdateMemberResponse {
         private Long id;
         private String name;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class SelectMemberDto{
+        private Long id;
+        private String name;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T>{
+        private Integer count;
+        private T data;
     }
 }
