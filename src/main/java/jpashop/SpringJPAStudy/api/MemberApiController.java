@@ -2,13 +2,10 @@ package jpashop.SpringJPAStudy.api;
 
 import jpashop.SpringJPAStudy.domain.Member;
 import jpashop.SpringJPAStudy.service.MemberService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -40,6 +37,17 @@ public class MemberApiController {
         return new CreateMemberResponse(member.getId());
     }
 
+    // 회원 수정 - PUT 으로 생성
+    @PutMapping("/api/v2/members/{memberId}")
+    public UpdateMemberResponse editMember(@PathVariable("memberId") Long memberId,
+                                           @RequestBody @Valid UpdateMemberRequest memberRequest) {
+        // update 문 안에서 아래 2개를 다 처리 가능하지만, 의미를 위해 별도로 작성
+        Long updatedId = memberService.updateMember(memberId, memberRequest.getName());
+        Member updateMember = memberService.findOne(updatedId);
+
+        return new UpdateMemberResponse(updateMember.getId(), updateMember.getName());
+    }
+
     @Data
     static class CreateMemberResponse {
         private Long id;
@@ -52,6 +60,17 @@ public class MemberApiController {
     @Data
     static class CreateMemberRequest {
         private String name;
+    }
 
+    @Data
+    static class UpdateMemberRequest {
+        private String name;
+    }
+
+    @Data
+    @AllArgsConstructor // 생성자 자동 처리
+    static class UpdateMemberResponse {
+        private Long id;
+        private String name;
     }
 }
