@@ -1,20 +1,13 @@
 package jpashop.SpringJPAStudy.api;
 
-import jpashop.SpringJPAStudy.domain.Address;
 import jpashop.SpringJPAStudy.domain.Order;
 import jpashop.SpringJPAStudy.domain.OrderSearch;
-import jpashop.SpringJPAStudy.domain.OrderStatus;
 import jpashop.SpringJPAStudy.repository.OrderRepository;
-import jpashop.SpringJPAStudy.service.ItemService;
-import jpashop.SpringJPAStudy.service.MemberService;
-import jpashop.SpringJPAStudy.service.OrderService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jpashop.SpringJPAStudy.repository.OrderSimpleQueryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,10 +31,10 @@ public class OrderSimpleApiController {
     // 방안 4 : 위의 강제 로딩 삭제 후, List<Order> 각각에 대해 member, delivery 를 조회하여 LAZY 로딩 객체를 초기화 시킴
 
     @GetMapping("/api/v2/simple-orders")
-    public List<SimpleOrderDto> ordersV2() {
+    public List<OrderSimpleQueryDto> ordersV2() {
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
-        List<SimpleOrderDto> collect = orders.stream()
-                .map(o -> new SimpleOrderDto(o))
+        List<OrderSimpleQueryDto> collect = orders.stream()
+                .map(o -> new OrderSimpleQueryDto(o))
                 .collect(Collectors.toList());
         return collect;
     }
@@ -49,29 +42,32 @@ public class OrderSimpleApiController {
     // 해결 1 : fetch 조인을 사용하여 개선해야 함 (v3)
 
     @GetMapping("/api/v3/simple-orders")
-    public List<SimpleOrderDto> ordersV3(){
+    public List<OrderSimpleQueryDto> ordersV3(){
         List<Order> orders = orderRepository.findAllWithMemberDelivery();
         return orders.stream()
-                     .map(o -> new SimpleOrderDto(o))
+                     .map(o -> new OrderSimpleQueryDto(o))
                      .collect(Collectors.toList());
     }
     // 쿼리 1번 나감!
-    // 문제 1 : 모든 엔티티 값을 가져오면서 DTO 에 비해 필요없는 데이터가 많음 (v4 개선)
+    // 장점 : v4에 비해 자유도가 높음 (재사용성 높음)
+    // 단점 : 모든 엔티티 값을 가져오면서 DTO에 비해 필요없는 데이터가 많음
 
-    @Data
-    static class SimpleOrderDto {
-        private Long orderId;
-        private String memberName;
-        private LocalDateTime orderData;
-        private OrderStatus orderStatus;
-        private Address address;
-
-        public SimpleOrderDto(Order order) {
-            orderId = order.getId();
-            memberName = order.getMember().getName();
-            orderData = order.getOrderDate();
-            orderStatus = order.getStatus();
-            address = order.getDelivery().getAddress();
-        }
+    @GetMapping("/api/v4/simple-orders")
+    public List<OrderSimpleQueryDto> ordersV4(){
+        return orderRepository.findOrderDtos();
     }
+    // JPA 에서 바로 DTO로 데이터를 입력
+    // SQL 짜듯이 필요한 데이터만 가지고 옴 (new 를 사용하여 데이터를 DTO로 바로 변환)
+    // 장점 : 성능 최적화 상으로 좋음
+    // 단점 : 재사용성이 매우 떨어짐
+    //       Repository에 API 스펙 자체가 들어가게 됨
+
+    // v3, v4의 trade off 관계 - 성능 vs 사용성
+    // 요즘 성능이 좋아서 사실 v3과 v4의 차이가 크지 않음
+    //  -> 하지만 DataSize가 매우 큰 경우, 트래픽이 매우 큰 경우, v4가 나을 수 있음
+    // 대부분 join 에서 성능을 먹기 때문에...
+
+    // Repository 아래 query 패키지를 만들어서 별도로 처리
+    // OrderSimpleRepository를 별도로 구성, findOrderDtos 함수 자체를 이동
+    // - 복잡하고 성능이 필요한 부분, 화면에 종속적으로 필요한 부분 등을 아예 분리시켜 처리
 }

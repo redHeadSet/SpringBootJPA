@@ -1,10 +1,8 @@
 package jpashop.SpringJPAStudy.repository;
 
-import jpashop.SpringJPAStudy.domain.Member;
+import jpashop.SpringJPAStudy.domain.*;
 import jpashop.SpringJPAStudy.domain.Order;
-import jpashop.SpringJPAStudy.domain.OrderSearch;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Criteria;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -101,6 +99,16 @@ public class OrderRepository {
                                " join fetch o.member m" +
                                " join fetch o.delivery d", Order.class)
                                .getResultList();
+    }
+
+    public List<OrderSimpleQueryDto> findOrderDtos() {
+        return em.createQuery(
+                 "select new jpashop.SpringJPAStudy.repository.OrderSimpleQueryDto(" +
+                         "o.id, m.name, o.orderDate, o.status, d.address)" +
+                        " from Order o" +
+                        " join o.member m" +
+                        " join o.delivery d", OrderSimpleQueryDto.class)
+                        .getResultList();
     }
 }
 
