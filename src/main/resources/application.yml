@@ -13,6 +13,7 @@ spring:
       hibernate:
         show_sql: true    # sql 문을 보여줌 : system.out
         format_sql: true  # 문장을 물음표 표시 말고 값을 보여줌
+        default_batch_fetch_size: 100 # LAZY 로딩 시 조인 쿼리 내 IN 값의 수
 
   # 타임리프 매핑 설정
   # prifix + Controller 반환 String 값 + suffix 값으로 렌더링할 View 찾음

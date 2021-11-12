@@ -6,6 +6,7 @@ import jpashop.SpringJPAStudy.service.OrderService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -52,12 +53,31 @@ public class OrderApiController {
     // 해당 방법으로 join 처리 시 각 Order에 대해 2줄씩 생성됨 - orderId:4-2줄, 11-2줄
     // 각 order에 대해 orderItem 이 2개씩 들어있어 발생한 문제 (Order과 OrderItem의 Join 처리 시 발생)
     // + distinct 사용하여 중복 제거
-    // ->   DB 상황은 동일하게 결과가 4개지만,
-    //      JPA에서 4개의 데이터 중 동일한 데이터가 있다는 걸 판단한 후 2개로 줄여줌 (결과 주소값 확인)
+    // ->   DB 상황은 동일하게 결과가 4개로 전송됨
+    //      JPA에서 4개의 데이터 중 결과 주소값을 확인하여 동일 데이터를 제거
     // 단점 : 페이징 불가 : rows 수를 정확히 알 수 없음
     //      해당 쿼리를 페이징 쿼리를 제외하여 전달한 후, 메모리에서 페이징을 처리함
     //      데이터가 많은 경우, 메모리 부하가 심각해짐
     // + 컬렉션 패치 조인은 1개만 가능 (일대다) -> 일대다대다 정도까지 가면 데이터 부정확
+
+    @GetMapping("/api/v3.1/orders")
+    public List<OrderDto> ordersV3_page(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "100") int limit){
+        List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);// 아래 1번 처리
+        // 2번 처리 : application.yml 에 default_batch_fetch_size 추가
+        // 2번 처리 후 OrderItem 쿼리 join 시 "~ order_id in (4, 11)" 가 들어감 - LAZY 조인 시 한 번에 처리하는 갯수
+        // 그 후 OrderItem 에서 Item 쿼리 시 "~ item_id in (2, 3, 9, 10)" 가 들어가면서 총 쿼리 3번으로 처리됨
+        return orders.stream().map(order -> new OrderDto(order)).collect(Collectors.toList());
+    }
+    // 대부분의 페이징 + 컬렉션 엔티티 문제는 이 방법으로 해결 가능
+    //      1. ToOne 관계는 모두 fetch join 처리 - 그렇게 처리해도 데이터 row가 늘어나지 않음
+    //      2. ToMany 관계(컬렉션)는 지연 로딩
+    //      3. 지연 로딩을 최적화(hibernate.default_batch_fetch_size 또는 @BatchSize)
+
+    // cf. default_batch_fetch_size는 최대 1000. 일반적으로 100~1000 사이로 추천
+    // 쿼리는 100으로 10번, 1000으로 했을 때 1번 나가기 때문에 1000이 나을 수 있지만
+    // 1000으로 한 경우 어플리케이션에 의한 DB 부하가 순간적으로 크기 때문에 조율해줘야 한다
 
     // ============================================================================
     @Data
