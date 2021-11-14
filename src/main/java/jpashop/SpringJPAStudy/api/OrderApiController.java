@@ -4,7 +4,6 @@ import jpashop.SpringJPAStudy.domain.*;
 import jpashop.SpringJPAStudy.repository.OrderRepository;
 import jpashop.SpringJPAStudy.repository.order.query.OrderQueryDto;
 import jpashop.SpringJPAStudy.repository.order.query.OrderQueryRepository;
-import jpashop.SpringJPAStudy.service.OrderService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +43,7 @@ public class OrderApiController {
     // OrderItem으로 일대다 조인 발생
 
     @GetMapping("/api/v3/orders")
-    public List<OrderDto> ordersV3(){
+    public List<OrderDto> ordersV3() {
         List<Order> allWithItem = orderRepository.findAllWithItem();
 //        for (Order order : allWithItem) {
 //            System.out.println("order red" + order);
@@ -66,7 +65,7 @@ public class OrderApiController {
     @GetMapping("/api/v3.1/orders")
     public List<OrderDto> ordersV3_page(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "limit", defaultValue = "100") int limit){
+            @RequestParam(value = "limit", defaultValue = "100") int limit) {
         List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);// 아래 1번 처리
         // 2번 처리 : application.yml 에 default_batch_fetch_size 추가
         // 2번 처리 후 OrderItem 쿼리 join 시 "~ order_id in (4, 11)" 가 들어감 - LAZY 조인 시 한 번에 처리하는 갯수
@@ -93,8 +92,16 @@ public class OrderApiController {
     // DTO 내 컬렉션을 바로 조회할 방법은 없다. - 그대로 조회한 후, 각 컬렉션 데이터에 대해 다시 조회
     // 즉, 결과적으로 1+N 쿼리 발생
 
+    @GetMapping("/api/v5/orders")
+    public List<OrderQueryDto> orderV5() {
+        return orderQueryRepository.findAllByDtos_opti();
+    }
+    // V4 의 쿼리를 IN SQL 사용으로 쿼리 2번으로 완료하도록 개선
+    // IN으로 하여 Item 데이터를 가져온 후, 해당 Item 데이터들을 Map<orderId, Items> 형식으로 처리하여 매핑
+
     // ============================================================================
     @Data
+
     static class OrderDto {
         private Long orderId;
         private String name;
