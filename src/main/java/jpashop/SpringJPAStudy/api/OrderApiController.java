@@ -2,6 +2,8 @@ package jpashop.SpringJPAStudy.api;
 
 import jpashop.SpringJPAStudy.domain.*;
 import jpashop.SpringJPAStudy.repository.OrderRepository;
+import jpashop.SpringJPAStudy.repository.order.query.OrderQueryDto;
+import jpashop.SpringJPAStudy.repository.order.query.OrderQueryRepository;
 import jpashop.SpringJPAStudy.service.OrderService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderApiController {
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @GetMapping("/api/v1/orders")
     public List<Order> ordersV1() {
@@ -78,6 +81,17 @@ public class OrderApiController {
     // cf. default_batch_fetch_size는 최대 1000. 일반적으로 100~1000 사이로 추천
     // 쿼리는 100으로 10번, 1000으로 했을 때 1번 나가기 때문에 1000이 나을 수 있지만
     // 1000으로 한 경우 어플리케이션에 의한 DB 부하가 순간적으로 크기 때문에 조율해줘야 한다
+
+    // ============================================================================
+    // JPA에서 DTO 직접 조회
+
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4() {
+        return orderQueryRepository.findOrderQueryDtos();
+    }
+    // simple과 같은 기본 조회 방식
+    // DTO 내 컬렉션을 바로 조회할 방법은 없다. - 그대로 조회한 후, 각 컬렉션 데이터에 대해 다시 조회
+    // 즉, 결과적으로 1+N 쿼리 발생
 
     // ============================================================================
     @Data
