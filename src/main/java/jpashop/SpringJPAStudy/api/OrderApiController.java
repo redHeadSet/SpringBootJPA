@@ -2,6 +2,7 @@ package jpashop.SpringJPAStudy.api;
 
 import jpashop.SpringJPAStudy.domain.*;
 import jpashop.SpringJPAStudy.repository.OrderRepository;
+import jpashop.SpringJPAStudy.repository.order.query.OrderFlatDto;
 import jpashop.SpringJPAStudy.repository.order.query.OrderQueryDto;
 import jpashop.SpringJPAStudy.repository.order.query.OrderQueryRepository;
 import lombok.Data;
@@ -98,6 +99,16 @@ public class OrderApiController {
     }
     // V4 의 쿼리를 IN SQL 사용으로 쿼리 2번으로 완료하도록 개선
     // IN으로 하여 Item 데이터를 가져온 후, 해당 Item 데이터들을 Map<orderId, Items> 형식으로 처리하여 매핑
+
+    @GetMapping("/api/v6/orders")
+    public List<OrderQueryDto> orderV6() {
+        List<OrderFlatDto> flatDtos = orderQueryRepository.findAllByDtos_flat();
+        // 모두 조인하여 각 튜플별로 가져옴. 해당 데이터를 가공하여 OrderQueryDto 형태로 만들어야 함
+//        flatDtos.stream().
+        return null;
+    }
+    // 쿼리는 1번 나가지만, 해당 데이터를 어플리케이션에서 가공을 해야 함
+    // 당연히, 페이징 안 됨
 
     // ============================================================================
     @Data
